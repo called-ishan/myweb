@@ -1,91 +1,94 @@
-let timer = null;
-let totalSeconds = 0;
-let currentTask = null;
-let isPomodoroRunning = false;
+let timer;
+let minutes = 25;
+let seconds = 0;
+let isRunning = false;
+let taskHistory = [];
 
-function toggleTimer() {
-  const button = document.getElementById('startStopButton');
-  if (timer) {
-    pauseTimer();
-    button.textContent = 'Start';
-  } else {
-    startTimer();
-    button.textContent = 'Stop';
-  }
+const taskNameInput = document.getElementById('taskName');
+const timerDisplay = document.getElementById('timer');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const stopBtn = document.getElementById('stopBtn');
+const historyBtn = document.getElementById('historyBtn');
+const historyPage = document.getElementById('historyPage');
+const historyList = document.getElementById('historyList');
+
+function formatTime() {
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function updateTimer() {
+    timerDisplay.textContent = formatTime();
 }
 
 function startTimer() {
-  if (!timer) {
-    timer = setInterval(() => {
-      totalSeconds++;
-      displayTimer();
-    }, 1000);
-  }
+    if (!isRunning) {
+        isRunning = true;
+        timer = setInterval(function() {
+            if (seconds === 0) {
+                if (minutes === 0) {
+                    clearInterval(timer);
+                    isRunning = false;
+                    alert('Pomodoro Complete!');
+                } else {
+                    minutes--;
+                    seconds = 59;
+                }
+            } else {
+                seconds--;
+            }
+            updateTimer();
+        }, 1000);
+        startBtn.style.display = 'none';
+        pauseBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'inline-block';
+    }
 }
 
 function pauseTimer() {
-  clearInterval(timer);
-  timer = null;
+    clearInterval(timer);
+    isRunning = false;
+    startBtn.style.display = 'inline-block';
+    pauseBtn.style.display = 'none';
+    stopBtn.style.display = 'inline-block';
 }
 
-function resetTimer() {
-  pauseTimer();
-  totalSeconds = 0;
-  displayTimer();
-  document.getElementById('startStopButton').textContent = 'Start';
-}
-
-function displayTimer() {
-  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-  const seconds = String(totalSeconds % 60).padStart(2, '0');
-  document.getElementById('timer').textContent = `${hours}:${minutes}:${seconds}`;
-}
-
-function addTask() {
-  const taskNameInput = document.getElementById('taskName');
-  const taskName = taskNameInput.value.trim();
-  if (taskName) {
-    const taskLog = document.getElementById('taskLog');
-    const listItem = document.createElement('li');
-    listItem.textContent = `${taskName}: 0h 0m 0s`;
-    listItem.dataset.seconds = 0;
-    taskLog.appendChild(listItem);
+function stopTimer() {
+    clearInterval(timer);
+    isRunning = false;
+    if (taskNameInput.value) {
+        const task = {
+            name: taskNameInput.value,
+            time: formatTime(),
+        };
+        taskHistory.push(task);
+    }
     taskNameInput.value = '';
-    setCurrentTask(taskName);
-  }
+    updateTimer();
+    startBtn.style.display = 'inline-block';
+    pauseBtn.style.display = 'none';
+    stopBtn.style.display = 'none';
+    historyBtn.style.display = 'inline-block';
 }
 
-function setCurrentTask(taskName) {
-  currentTask = taskName;
-  document.getElementById('currentTask').textContent = `Task: ${currentTask}`;
+function viewHistory() {
+    historyPage.style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+    historyList.innerHTML = '';
+    taskHistory.forEach(task => {
+        const div = document.createElement('div');
+        div.classList.add('history-item');
+        div.textContent = `${task.name} - ${task.time}`;
+        historyList.appendChild(div);
+    });
 }
 
-function startPomodoro() {
-  if (isPomodoroRunning) return;
-
-  const workMinutes = parseInt(document.getElementById('workDuration').value, 10) || 25;
-  const breakMinutes = parseInt(document.getElementById('breakDuration').value, 10) || 5;
-
-  isPomodoroRunning = true;
-  let isWorkTime = true;
-
-  function pomodoroCycle() {
-    const duration = isWorkTime ? workMinutes : breakMinutes;
-    const status = isWorkTime ? 'Work Time!' : 'Break Time!';
-    document.getElementById('pomodoroStatus').textContent = status;
-
-    setTimeout(() => {
-      isWorkTime = !isWorkTime;
-      if (isPomodoroRunning) pomodoroCycle();
-    }, duration * 60000);
-  }
-
-  pomodoroCycle();
+function goBack() {
+    historyPage.style.display = 'none';
+    document.getElementById('app').style.display = 'block';
 }
 
-function changeMode() {
-  const mode = document.getElementById('mode').value;
-  document.getElementById('timerMode').style.display = mode === 'timer' ? 'block' : 'none';
-  document.getElementById('pomodoroMode').style.display = mode === 'pomodoro' ? 'block' : 'none';
-}
+startBtn.addEventListener('click', startTimer);
+pauseBtn.addEventListener('click', pauseTimer);
+stopBtn.addEventListener('click', stopTimer);
+historyBtn.addEventListener('click', viewHistory);

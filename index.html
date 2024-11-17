@@ -1,51 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Focus Timer</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Timer</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Focus Timer</h1>
-    
-    <div class="mode-selector">
-      <label for="mode">Mode:</label>
-      <select id="mode" onchange="changeMode()">
-        <option value="timer">Timer</option>
-        <option value="pomodoro">Pomodoro</option>
-      </select>
+    <div id="app" class="container">
+        <h1 class="title">Study Timer</h1>
+        <div class="input-task">
+            <input type="text" id="taskName" placeholder="Enter task name">
+        </div>
+        <div class="timer" id="timer">25:00</div>
+        <button class="button" id="startBtn">Start</button>
+        <button class="button" id="pauseBtn" style="display:none;">Pause</button>
+        <button class="button" id="stopBtn" style="display:none;">Stop</button>
+        <button class="button history-button" id="historyBtn" style="display:none;">View History</button>
     </div>
-    
-    <div class="timer-section" id="timerMode">
-      <h2 id="currentTask">No Task Selected</h2>
-      <div id="timer">00:00:00</div>
-      <div class="controls">
-        <button id="startStopButton" onclick="toggleTimer()">Start</button>
-        <button onclick="resetTimer()">Reset</button>
-      </div>
-      <div class="task-section">
-        <input type="text" id="taskName" placeholder="Enter Task Name">
-        <button onclick="addTask()">Add Task</button>
-      </div>
+
+    <div id="historyPage" class="history-page" style="display:none;">
+        <h1 class="history-title">Task History</h1>
+        <div id="historyList" class="history-list"></div>
+        <button class="button" onclick="goBack()">Go Back</button>
     </div>
-    
-    <div class="pomodoro-section" id="pomodoroMode" style="display: none;">
-      <h2>Pomodoro Mode</h2>
-      <div>
-        Work Duration: <input type="number" id="workDuration" value="25"> mins
-        Break Duration: <input type="number" id="breakDuration" value="5"> mins
-      </div>
-      <button id="pomodoroButton" onclick="startPomodoro()">Start Pomodoro</button>
-      <p id="pomodoroStatus"></p>
-    </div>
-    
-    <div class="task-log">
-      <h2>Task Log</h2>
-      <ul id="taskLog"></ul>
-    </div>
-  </div>
-  <script src="script.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
